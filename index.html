@@ -161,18 +161,25 @@
                let giveToken = localStorage.getItem("token");
                let self = this;
 
-               axios.post("http://35.240.157.177/image",  formData, {
+               if(giveToken !== null){
+                  axios.post("http://35.240.157.177/image",  formData, {
                   headers: {
                      authorization: giveToken,
                   }
-               })
-               .then(function(response){
-                  console.log(response);
-                  self.getImage();
-               })
-               .catch(function(err){
-                  console.log(err);
-               })
+                  })
+                  .then(function(response){
+                     console.log(response);
+                     self.getImage();
+                  })
+                  .catch(function(err){
+                     console.log(err);
+                  })
+               }
+               
+               else{
+                  alert("Get token first!");
+               }
+               
                
             }
 
