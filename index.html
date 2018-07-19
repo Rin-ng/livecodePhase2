@@ -11,22 +11,18 @@
   </head>
 
   <body>
-
-    <!-- Navbar goes here -->
-
-    <!-- Page Layout here -->
+      <!-- HTML CONTENT -->
       <div class="row" id="app">
-
          <div class="col s3" >
-           <!-- Form panel -->
-           <div class="row" style="background-color: aliceblue">
+            <!-- Form panel -->
+            <div class="row" style="background-color: aliceblue">
                <form class="col s9">
                   <div class="row">
                      <div class="input-field col s12">
                         <input id="email" type="email" ref="emailInput" class="validate">
                            <label for="email">Email</label>
-                        </div>
                      </div>
+                  </div>
                   <div class="row">
                      <div class="input-field col s12">
                         <input id="name" type="text" ref="nameInput" >
@@ -35,7 +31,7 @@
                   </div>
                </form>
                <button class="btn waves-effect waves-light" @click.prevent="getToken()" name="action">Submit
-                     <i class="material-icons right">send</i>
+                  <i class="material-icons right">send</i>
                </button>
             </div>
             <br><br>
@@ -52,154 +48,146 @@
                      <button class="btn waves-effect waves-light" @click.prevent="uploadFile()" name="action">Upload Image</button>
                   </div>
                </form>
-            </div>
-            
+            </div>  
          </div>
-
+         <!--Form Panel Ends-->
                   
-   
+         <!-- Image Content  -->
          <div class="col s9">
-           <!-- Image content  -->
             <div id="imgDisplay" v-if="hasToken === true" >
                <div class="row" >
-                     <div class="col s3 m7" v-for="image in allImages">
-                        <div class="card" >
-                           <div class="card-image">
+                  <div class="col s3 m7" v-for="image in allImages">
+                     <div class="card" >
+                        <div class="card-image">
                            <img  :src="image.imgUrl" style="max-height:400px">
-                           </div>
-                           <div class="card-content">
+                        </div>
+                        <div class="card-content">
                            <p>Posted by: {{image.name}}</p>
                            <p>User email: {{image.email}}</p>
-                           </div>
                         </div>
                      </div>
                   </div>
+               </div>
             </div>
-
          </div>
-   
+         <!--Image Content ends-->
       </div>
+      <!-- End of HTML -->
 
-   <!--JavaScript at end of body for optimized loading-->
-   <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
-   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
-   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-   <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+      <!--JavaScript at end of body for optimized loading-->
+      <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+      <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
 
 
-   <!-- Vue -->
-   <script>
-      var app = new Vue({ 
-         el: '#app',
-         data: {
-            email: '',
-            username: '',
-            hasToken: false,
-            allImages: [],
-            file: '',
-         },
-         methods:{
-            handleFileUpload: function(){
-               this.file = this.$refs.file.files[0];
+      <!-- Vue -->
+      <script>
+         var app = new Vue({ 
+            el: '#app',
+            data: {
+               email: '',
+               username: '',
+               hasToken: false,
+               allImages: [],
+               file: '',
             },
-            getToken: function(){
-               this.email = this.$refs.emailInput.value;
-               this.username = this.$refs.nameInput.value;
-               let self = this;
+            methods:{
+               handleFileUpload: function(){
+                  this.file = this.$refs.file.files[0];
+               },
+               getToken: function(){
+                  this.email = this.$refs.emailInput.value;
+                  this.username = this.$refs.nameInput.value;
+                  let self = this;
 
-               axios.post("http://35.240.157.177/request-token", {
-                  email: self.email,
-                  name: self.username
-               })
-               .then(function(response){
-                  // console.log(response.data.uuid);
-                  localStorage.setItem("token", response.data.uuid);
-
-                  if(self.email !== "" && self.username !== ""){
-                  var r = confirm("You have received a token!");
-                  if (r == true) {
-                     self.hasToken = true;
-                     self.getImage();
-                  } else {
-                     self.hasToken = true;
-                     self.getImage();
-                  }}
-               })
-               .catch(function(err){
-                  console.log(err);
-               })
-            },
-
-            getImage: function(){
-               let self = this;
-               let giveToken = localStorage.getItem("token");
-               axios.get("http://35.240.157.177/image", {
-                  headers:{
-                     authorization: giveToken,
-                  }
-               })
-               .then(function(response){
-                  for(let i = 0 ; i < response.data.length; i++){
-                    let obj = {
-                        name: response.data[i].user.name,
-                        email: response.data[i].user.email,
-                        imgUrl: response.data[i].url,
-                     }
-                     self.allImages.push(obj);
-                  }
-                 
-                  console.log(self.allImages);
-               })
-               .catch(function(err){
-                  console.log(err);
-               })
-            },
-
-            uploadFile: function(){
-               let formData = new FormData();
-               formData.append('file', this.file);
-               let giveToken = localStorage.getItem("token");
-               let self = this;
-
-               if(giveToken !== null){
-                  axios.post("http://35.240.157.177/image",  formData, {
-                  headers: {
-                     authorization: giveToken,
-                  }
+                  axios.post("http://35.240.157.177/request-token", {
+                     email: self.email,
+                     name: self.username
                   })
                   .then(function(response){
-                     console.log(response);
-                     self.getImage();
+                     // console.log(response.data.uuid);
+                     localStorage.setItem("token", response.data.uuid);
+
+                     if(self.email !== "" && self.username !== ""){
+                        var r = confirm("You have received a token!");
+                        if (r == true) {
+                           self.hasToken = true;
+                           self.getImage();
+                        } else {
+                           self.hasToken = true;
+                           self.getImage();
+                        }
+                     }
                   })
                   .catch(function(err){
                      console.log(err);
                   })
+               },
+
+               getImage: function(){
+                  let self = this;
+                  let giveToken = localStorage.getItem("token");
+                  axios.get("http://35.240.157.177/image", 
+                  {
+                     headers:{
+                        authorization: giveToken,
+                     }
+                  })
+                  .then(function(response){
+                     for(let i = 0 ; i < response.data.length; i++){
+                        let obj = {
+                              name: response.data[i].user.name,
+                              email: response.data[i].user.email,
+                              imgUrl: response.data[i].url,
+                           }
+                        self.allImages.push(obj);
+                     }
+                  })
+                  .catch(function(err){
+                     console.log(err);
+                  })
+               },
+
+               uploadFile: function(){
+                  let formData = new FormData();
+                  formData.append('file', this.file);
+                  let giveToken = localStorage.getItem("token");
+                  let self = this;
+
+                  if(giveToken !== null){
+                     axios.post("http://35.240.157.177/image",  formData, 
+                     {
+                        headers: {
+                           authorization: giveToken,
+                        }
+                     })
+                     .then(function(response){
+                        console.log(response);
+                        self.getImage();
+                     })
+                     .catch(function(err){
+                        console.log(err);
+                     })
+                  }
+      
+                  else{
+                     alert("Get token first!");
+                  }
                }
-               
+            },
+            created: function(){
+               let self = this;
+
+               if(localStorage.getItem("token") !== null){
+                  self.hasToken = true;   
+                  self.getImage();
+               }
                else{
-                  alert("Get token first!");
+                  self.hasToken = false;
                }
-               
-               
-            }
-
-
-         },
-         created: function(){
-            let self = this;
-
-            if(localStorage.getItem("token") !== null){
-               self.hasToken = true;   
-               
-               self.getImage();
-            }
-            else{
-               self.hasToken = false;
-            }
-
-         }         
-      })
-   </script>
-   
-  </body>
+            }         
+         })
+      </script>
+   </body>
 </html>
